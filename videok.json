@@ -6,7 +6,8 @@
     "type": "videa",
     "src": "https://videa.hu/player?v=9V5t7VdjXyRdVpRa",
     "thumb": "https://jobbmintatv.pro/borito/sorozat/A_hobbit:_Smaug_pusztasaga_big.jpg?4",
-    "label": "Videa"
+    "label": "Videa",
+    "category": "Fantasy"
   },
   {
     "id": "mvkvm8q01k7",
