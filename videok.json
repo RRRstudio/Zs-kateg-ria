@@ -272,11 +272,11 @@
     "type": "videa",
     "src": "https://videa.hu/player?v=SHHUPSGjpcPT0XWE",
     "label": "Videa",
-    "category": "Rajzfilm",
+    "thumb": "https://jobbmintatv.pro/borito/sorozat/Legyozhetetlen_big.jpg?0",
+    "category": "Kaland",
     "series": "Legyőzhetetlen - Invincible",
     "season": 1,
-    "episode": 1,
-    "thumb": "https://jobbmintatv.pro/borito/sorozat/Legyozhetetlen_big.jpg?0"
+    "episode": 1
   },
   {
     "id": "mvjg6wdq9rc",
