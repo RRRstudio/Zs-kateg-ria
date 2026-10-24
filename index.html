@@ -96,7 +96,7 @@
   .hero{position:relative;border-radius:30px;overflow:hidden;min-height:clamp(260px,40vw,470px);display:flex;align-items:flex-end;margin-bottom:30px;
     border:1px solid var(--line);box-shadow:0 34px 90px rgba(0,0,0,.55),var(--glow);animation:rise .8s cubic-bezier(.2,.8,.2,1) backwards}
   .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;animation:kenburns 22s ease-in-out infinite alternate}
-  @keyframes kenburns{from{transform:scale(1.04)}to{transform:scale(1.16) translate(-1.5%,-1%)}}
+  @keyframes kenburns{from{transform:scale(1.01)}to{transform:scale(1.06) translate(-.6%,-.4%)}}
   .hero-bg.nothumb{background:radial-gradient(circle at 78% 42%,#6a2fb8,#12081f 62%)}
   .hero-bg.nothumb::after{content:'📼';position:absolute;right:9%;top:50%;font-size:clamp(130px,24vw,320px);transform:translateY(-50%);animation:bob 4.5s ease-in-out infinite;filter:drop-shadow(0 24px 40px rgba(0,0,0,.55))}
   @keyframes bob{0%,100%{transform:translateY(-50%) rotate(-4deg)}50%{transform:translateY(-56%) rotate(5deg)}}
@@ -307,6 +307,7 @@
     .btn{white-space:nowrap;padding-left:14px;padding-right:14px}
     .btn.ghost{padding-left:12px;padding-right:12px}
   }
+  [hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -329,6 +330,7 @@
     <span class="badge" id="badge">csak olvasás</span>
     <button class="btn ghost dice" id="randBtn" title="Véletlen Zs-film (R)">🎲<span class="lbl"> Random</span></button>
     <button class="btn" id="openAdd">＋ Új Zs-film</button>
+    <button class="btn ghost icon" id="visBtn" title="Látogatók (csak szerkesztőknek)" hidden>👁</button>
     <button class="btn ghost icon" id="cfgBtn" title="Beállítások">⚙</button>
   </div>
 </header>
@@ -407,6 +409,15 @@
     <button class="btn ghost" id="cfgCancel" type="button">Mégse</button>
     <button class="btn" id="cfgSave" type="button">Mentés</button>
   </div>
+</dialog>
+
+<dialog id="visDlg">
+  <h3>👁 Látogatók</h3>
+  <div style="text-align:center;margin:18px 0 6px"><div id="visNum" style="font-family:var(--display);font-size:64px;line-height:1;color:var(--accent);text-shadow:3px 3px 0 var(--accent2)">…</div>
+  <div style="color:var(--muted);font-size:14px;margin-top:8px">különböző eszközről látogatták az oldalt</div></div>
+  <p id="visInfo"></p>
+  <p>Minden böngésző egyszer számít. Aki törli a böngészőadatait vagy másik böngészőt használ, újra beleszámít. A saját szerkesztő gépedet nem számoljuk.</p>
+  <div class="row"><button class="btn ghost" id="visClose" type="button">Bezár</button></div>
 </dialog>
 
 <dialog id="editDlg">
@@ -1093,7 +1104,31 @@ $('#url').addEventListener('paste', e => {
   }
 });
 
+// ---- különböző eszközök száma (név és IP nélkül, csak egy számláló) ----
+const devNs = () => ('zs-eszkozok.' + location.hostname).toLowerCase().replace(/[^a-z0-9._-]/g, '-');
+async function devReq(kind) {
+  const r = await fetch(VIEW_API + '/' + kind + '/' + devNs() + '/eszkozok');
+  if (r.status === 404) return 0;
+  if (!r.ok) throw new Error('számláló: ' + r.status);
+  return Number((await r.json()).value) || 0;
+}
+// minden eszköz (böngésző) csak egyszer számít, a szerkesztő saját gépe nem
+function trackDevice() {
+  try {
+    if (editable() || localStorage.getItem('zs-device')) return;
+    localStorage.setItem('zs-device', '1');
+    devReq('hit').catch(() => { try { localStorage.removeItem('zs-device'); } catch (e) {} });
+  } catch (e) {}
+}
+$('#visBtn').onclick = async () => {
+  $('#visDlg').showModal(); $('#visNum').textContent = '…'; $('#visInfo').textContent = '';
+  try { $('#visNum').textContent = fmtViews(await devReq('get')); }
+  catch (e) { $('#visNum').textContent = '–'; $('#visInfo').textContent = 'Nem sikerült lekérni: ' + e.message; }
+};
+$('#visClose').onclick = () => $('#visDlg').close();
+
 // ---- indulás ----
+
 async function init() {
   try { await loadItems(); } catch (e) { toast(e.message); }
   // egyszeri átvétel a régi, böngészőben tárolt listából
@@ -1108,6 +1143,8 @@ async function init() {
   }
   render();
   onHash();
+  $('#visBtn').hidden = !editable();
+  trackDevice();
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !busy) loadItems().then(() => { render(); onHash(); }).catch(() => {}); });
 init();
