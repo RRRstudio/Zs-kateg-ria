@@ -766,9 +766,9 @@
     "type": "iframe",
     "src": "https://ebd.cda.pl/620x395/170267929b",
     "label": "ebd.cda.pl",
-    "category": "Rajzfilm",
-    "series": "Rick és Morty",
     "thumb": "https://www.emp-shop.dk/dw/image/v2/BBQV_PRD/on/demandware.static/-/Library-Sites-EMPSharedLibrary/default/dw7fc8a4af/80529_MT_Rick_and_Morty.jpg?sw=361",
+    "category": "Komédia",
+    "series": "Rick és Morty",
     "season": 1,
     "episode": 1
   },
